@@ -2213,7 +2213,8 @@ public class DatabaseForm extends AbstractForm {
                 || EDatabaseConnTemplate.HIVE.getDBDisplayName().equals(dbTypeCombo.getText())
                 || EDatabaseConnTemplate.PLUSPSQL.getDBDisplayName().equals(dbTypeCombo.getText())
                 || EDatabaseConnTemplate.VERTICA.getDBDisplayName().equals(dbTypeCombo.getText())
-                || EDatabaseConnTemplate.PSQL.getDBDisplayName().equals(dbTypeCombo.getText());
+                || EDatabaseConnTemplate.PSQL.getDBDisplayName().equals(dbTypeCombo.getText())
+                || EDatabaseConnTemplate.IMPALA.getDBDisplayName().equals(dbTypeCombo.getText());
     }
 
     /**
@@ -2970,6 +2971,7 @@ public class DatabaseForm extends AbstractForm {
         boolean isVertica = asVerticaVersionEnable();
         boolean isSAS = asSASVersionEnable();
         boolean isSAPHana = asSAPHanaVersionEnable();
+        boolean isImpala = ImpalaVersionEnable();
 
         String selectedVersion = getConnection().getDbVersionString();
         dbVersionCombo.removeAll();
@@ -3007,10 +3009,13 @@ public class DatabaseForm extends AbstractForm {
         } else if (dbType.equals(EDatabaseConnTemplate.SAPHana.getDBDisplayName())) {
             dbVersionCombo.getCombo().setItems(versions);
             dbVersionCombo.setHideWidgets(!isSAPHana);
+        } else if (dbType.equals(EDatabaseConnTemplate.IMPALA.getDBDisplayName())) {
+            dbVersionCombo.getCombo().setItems(versions);
+            dbVersionCombo.setHideWidgets(!isImpala);
         }
         if (selectedVersion != null && !"".equals(selectedVersion)) { //$NON-NLS-1$
             EDatabaseVersion4Drivers version = EDatabaseVersion4Drivers.indexOfByVersion(selectedVersion);
-            if (version != null) {
+            if (version != null && versions.toString().contains(version.getVersionDisplay())) {
                 dbVersionCombo.setText(version.getVersionDisplay());
             }
         } else {
@@ -3640,10 +3645,11 @@ public class DatabaseForm extends AbstractForm {
         boolean isVertica = visible && asVerticaVersionEnable();
         boolean isSAS = visible && asSASVersionEnable();
         boolean isHbase = visible && asHbaseVersionEnable();
+        boolean isImpala = visible && ImpalaVersionEnable();
 
         dbVersionCombo
                 .setEnabled(!isReadOnly()
-                        && (isOracle || isAS400 || isMySQL || isVertica || isSAS
+                        && (isOracle || isAS400 || isMySQL || isVertica || isSAS || isImpala
                                 || EDatabaseConnTemplate.PSQL.getDBTypeName().equals(dbTypeCombo.getText())
                                 || EDatabaseConnTemplate.PLUSPSQL.getDBTypeName().equals(dbTypeCombo.getText())
                                 || EDatabaseConnTemplate.ACCESS.getDBTypeName().equals(dbTypeCombo.getText()) || EDatabaseConnTemplate.MSSQL05_08
@@ -3708,12 +3714,13 @@ public class DatabaseForm extends AbstractForm {
 
                 }
             }
-            if (isHbase || isDBTypeSelected(EDatabaseConnTemplate.ORACLE_CUSTOM)) {
+            if (isHbase || isDBTypeSelected(EDatabaseConnTemplate.ORACLE_CUSTOM)
+                    || isDBTypeSelected(EDatabaseConnTemplate.IMPALA)) {
                 urlConnectionStringText.hide();
             } else {
                 urlConnectionStringText.show();
             }
-            if (isDBTypeSelected(EDatabaseConnTemplate.ORACLE_CUSTOM)) {
+            if (isDBTypeSelected(EDatabaseConnTemplate.ORACLE_CUSTOM) || isDBTypeSelected(EDatabaseConnTemplate.IMPALA)) {
                 serverText.setLabelText(Messages.getString("DatabaseForm.stringConnection"));
             } else {
                 serverText.setLabelText(Messages.getString("DatabaseForm.server"));
@@ -4066,6 +4073,15 @@ public class DatabaseForm extends AbstractForm {
                         || template == EDatabaseConnTemplate.ORACLE_OCI || template == EDatabaseConnTemplate.ORACLE_CUSTOM);
     }
 
+    private boolean ImpalaVersionEnable() {
+
+        if (dbTypeCombo == null) {
+            return false;
+        }
+        EDatabaseConnTemplate template = EDatabaseConnTemplate.indexOfTemplate(dbTypeCombo.getText());
+        return template != null && (template == EDatabaseConnTemplate.IMPALA);
+    }
+
     /**
      * 
      * DOC qli Comment method "as400VersionEnable".
@@ -4268,7 +4284,7 @@ public class DatabaseForm extends AbstractForm {
         if (version != null && dbTypeList.size() > 1) {
             EDatabaseTypeName dbType = EDatabaseTypeName.getTypeFromDbType(getConnection().getDatabaseType());
             if (dbType == null || dbType.equals(EDatabaseTypeName.ACCESS) || dbType.equals(EDatabaseTypeName.PSQL)
-                    || dbType.equals(EDatabaseTypeName.PLUSPSQL)) {
+                    || dbType.equals(EDatabaseTypeName.PLUSPSQL) || dbType.equals(EDatabaseTypeName.IMPALA)) {
                 // no version check for these dbs
                 return null;
             }

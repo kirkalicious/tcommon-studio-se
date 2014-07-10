@@ -164,7 +164,11 @@ public class DBConnectionFillerImpl extends MetadataFillerImpl<DatabaseConnectio
             boolean isHiveJdbc = dbconn.getDatabaseType().equals(EDatabaseTypeName.GENERAL_JDBC.getDisplayName())
                     && dbconn.getDriverClass() != null
                     && dbconn.getDriverClass().equals(EDatabase4DriverClassName.HIVE.getDriverClass());
-            if (!isHive && !isHiveJdbc) {
+            boolean isImpala = dbconn.getDatabaseType().equals(EDatabaseTypeName.IMPALA.getDisplayName());
+            boolean isImpalaJdbc = dbconn.getDatabaseType().equals(EDatabaseTypeName.IMPALA.getDisplayName())
+                    && dbconn.getDriverClass() != null
+                    && dbconn.getDriverClass().equals(EDatabase4DriverClassName.IMPALA.getDriverClass());
+            if (!isHive && !isHiveJdbc && !isImpala && !isImpalaJdbc) {
                 String identifierQuote = dbMetadata.getIdentifierQuoteString();
                 ConnectionHelper.setIdentifierQuoteString(identifierQuote == null ? "" : identifierQuote, dbconn); //$NON-NLS-1$
             }

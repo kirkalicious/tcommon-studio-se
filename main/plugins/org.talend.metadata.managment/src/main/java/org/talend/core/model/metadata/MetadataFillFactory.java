@@ -95,6 +95,9 @@ public class MetadataFillFactory {
         case SYBASEIQ:
             metadataFiller = new SybaseConnectionFillerImpl();
             break;
+        case IMPALA:
+            metadataFiller = new ImpalaConnectionFillerImpl();
+            break;
         default:
             metadataFiller = DBmetadataFiller;
         }
