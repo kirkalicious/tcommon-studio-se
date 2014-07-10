@@ -1447,11 +1447,7 @@ public class DeleteAction extends AContextualAction {
                 case SIMPLE_FOLDER:
                     Object obj = node.getProperties(EProperties.LABEL);
                     String label = null;
-                    IPath path = RepositoryNodeUtilities.getPath(node);
-                    ERepositoryObjectType objectType = (ERepositoryObjectType) node.getProperties(EProperties.CONTENT_TYPE);
-                    FolderItem folderItem = factory.getFolderItem(ProjectManager.getInstance().getCurrentProject(), objectType,
-                            path);
-                    boolean isDeletedFolder = folderItem.getState().isDeleted();
+                    boolean isDeletedFolder = node.getObject().isDeleted();
                     if (obj instanceof String) {
                         label = (String) obj;
                     }
